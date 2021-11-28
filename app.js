@@ -7,8 +7,6 @@ require('dotenv').config({
 
 const checkValidPersonId = require('./src/utils/checkValidPersonId');
 const checkValidPath = require('./src/utils/checkValidPath');
-const deleteMethod = require('./src/utils/delete');
-const getMethod = require('./src/utils/get');
 
 let persons = [];
 
@@ -111,7 +109,7 @@ const server = http.createServer((req, res) => {
             }
         }
     } catch(err) {
-        if (/{ message: .*, status: ([0-9]){3} }/.test(err.message)) {
+        if (/{"message":"(.)*","status":([0-9]){3}}/.test(err.message)) {
             const { message, status } = JSON.parse(err.message);
             res.statusCode = status;
             res.end(JSON.stringify({ detail: message }));
