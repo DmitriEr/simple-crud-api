@@ -86,5 +86,5 @@ const server = http.createServer((req, res) => {
 })
 
 server.listen(process.env.PORT, (err) => {
-    err ? console.log(err) : console.log(`lisen on 3000 server`);
+    err ? console.log(err) : console.log(`lisen on ${process.env.PORT} server`);
 });
