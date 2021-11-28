@@ -4,8 +4,9 @@
   "description": "- Your task is to implement simple CRUD API using in-memory database underneath.\r NB! You must create new repository for this task. Its name must be simple-crud-api i.e. full link to the repository must be https://github.com/%your-gihub-id%/simple-crud-api.",
   "main": "inde.js",
   "scripts": {
-    "start:dev": "webpack --mode development && NODE_ENV=development PORT=3000 nodemon ./dist/main.js",
-    "start:prod": "webpack --mode production && NODE_ENV=production PORT=3000 nodemon ./dist/main.js"
+    "start": "PORT=3000 nodemon ./app.js",
+    "start:dev": "webpack --mode development && NODE_ENV=development PORT=3000 node ./dist/main.js",
+    "start:prod": "webpack --mode production && NODE_ENV=production PORT=3000 node ./dist/main.js"
   },
   "repository": {
     "type": "git",
@@ -24,5 +25,8 @@
     "uuid": "^8.3.2",
     "webpack": "^5.64.4",
     "webpack-cli": "^4.9.1"
+  },
+  "dependencies": {
+    "jest": "^27.3.1"
   }
 }

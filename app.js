@@ -41,47 +41,84 @@ const server = http.createServer((req, res) => {
             }
             break;
             case 'DELETE': {
-                const userId = deleteMethod(req, persons);
-                persons = persons.filter(({ id }) =>id !== userId);
-                res.statusCode = 204;
-                res.end();
+                const userId = req.url.match(/[\d\w]{8}-([\d\w]{4}-){3}[\d\w]{12}/);
+                if (userId && userId[0]) {
+                    const user = persons.filter(({ id }) => id === userId[0]);
+                    if (!user.length) {
+                        res.statusCode = 404;
+                        res.end(JSON.stringify({ detail: 'user not exist' }));
+                    } else {
+                        persons = persons.filter((item) => item.id !== userId[0]);
+                        res.statusCode = 204;
+                        res.end();
+                    }
+                }
             }
             break;
             case 'PUT': {
                 req.on('data', (data) => {
                     const json = JSON.parse(data.toString());
+                    const keys = Object.keys(json);
+
+                    const isExistKey = keys.reduce((acc, prev) => {
+                        if (!['name', 'age', 'hobbies'].includes(prev)) {
+                            acc = false;
+                            return acc;
+                        }
+                        return acc;
+                    }, true);
 
                     const userId = req.url.match(/[\d\w]{8}-([\d\w]{4}-){3}[\d\w]{12}/);
                 
-                    if (userId && userId[0]) {
+                    if (isExistKey && userId && userId[0]) {
                         const user = persons.filter(({ id }) => id === userId[0]);
                 
                         if (!user.length) {
                             res.statusCode = 404;
-                            res.end(JSON.stringify({ message: 'user not exist', status: 404 }));
+                            res.end(JSON.stringify({ detail: 'user not exist' }));
+                        } else {
+                            persons = persons.map((item) => {
+                                if(item.id === userId[0]) {
+                                    return { ...item, ...json }
+                                }
+                                return item;
+                            })
+                            res.statusCode = 200;
+                            res.end(JSON.stringify({ ...user[0], ...json }));
                         }
-                        persons = persons.map((item) => {
-                            if(item.id === userId[0]) {
-                                return { ...item, ...json }
-                            }
-                            return item;
-                        })
-                        res.statusCode = 200;
-                        res.end(JSON.stringify({ ...user[0], ...json }))
+                    } else {
+                        res.statusCode = 400;
+                        res.end(JSON.stringify({ detail: 'key is not exist' }))
                     }
                 })
             }
             break;
             default: {
-                const data = getMethod(req, persons);
-                res.statusCode = 200;
-                res.end(JSON.stringify(data));
+                const userId = req.url.match(/[\d\w]{8}-([\d\w]{4}-){3}[\d\w]{12}/);
+                if (userId && userId[0]) {
+                    const user = persons.filter(({ id }) => id === userId[0]);
+                    if (!user.length) {
+                        res.statusCode = 404;
+                        res.end(JSON.stringify({ detail: 'user not exist' }));
+                    } else {
+                        res.statusCode = 200;
+                        res.end(JSON.stringify(user[0]))
+                    }
+                } else {
+                    res.statusCode = 200;
+                    res.end(JSON.stringify(persons));
+                }
             }
         }
     } catch(err) {
-        const { message, status } = JSON.parse(err.message);
-        res.statusCode = status;
-        res.end(JSON.stringify({ detail: message }));
+        if (/{ message: .*, status: ([0-9]){3} }/.test(err.message)) {
+            const { message, status } = JSON.parse(err.message);
+            res.statusCode = status;
+            res.end(JSON.stringify({ detail: message }));
+        } else {
+            res.statusCode = 500;
+            res.end(JSON.stringify({ detail: 'internal server error'}));
+        }
     }
 })
 

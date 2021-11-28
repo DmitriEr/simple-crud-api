@@ -11,8 +11,6 @@ module.exports = {
         fallback: {
             "os": false,
             "fs": false,
-            "path": require.resolve("path-browserify"),
-            "http": require.resolve('stream-http')
         }
     }
 };
